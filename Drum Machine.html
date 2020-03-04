@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Drum Machine</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="">
+
+<style>
+</style>
+
+</head>
+
+<body>
+
+<header>
+  <h1>Drum Machine</h1>
+</header>
+
+<main>
+  <ul>
+    <li>Press V or B for bass drum</li>
+    <li>Press N or M for snare</li>
+    <li>Press J for crash</li>
+    <li>Press K for open hi-hat</li>
+    <li>Press L for closed hi-hat</li>
+    <li>Press I for china</li>
+    <li>Press O for triangle</li>
+    <li>Press U for bell</li>
+  </ul>
+</main>
+
+<script>
+  var bass = "https://freesound.org/data/previews/371/371192_6399962-lq.mp3",
+      snare = "https://freesound.org/data/previews/410/410514_5121236-lq.mp3",
+      crash = "https://freesound.org/data/previews/270/270108_1125482-lq.mp3",
+      hiHatOpen = "https://freesound.org/data/previews/87/87726_932703-lq.mp3",
+      hiHatClosed = "https://freesound.org/data/previews/87/87725_932703-lq.mp3",
+      china = "https://freesound.org/data/previews/28/28048_208079-lq.mp3",
+      triangle = "https://freesound.org/data/previews/349/349502_5450487-lq.mp3",
+      bell = "https://freesound.org/data/previews/34/34796_209299-lq.mp3";
+  document.addEventListener("keydown",function(event){
+    playDrum(bass,"v",0.105,1);
+    playDrum(bass,"b",0.105,1);
+    playDrum(snare,"n",0.201,1);
+    playDrum(snare,"m",0.201,1);
+    playDrum(crash,"j",0.2,0.1);
+    playDrum(hiHatOpen,"k",0,1);
+    playDrum(hiHatClosed,"l",0,1);
+    playDrum(china,"i",0,0.15);
+    playDrum(triangle,"o",0,0.4);
+    playDrum(bell,"u",0,0.4);
+  });
+  function playDrum(drum,key,start,volume){
+    if (event.key == key){
+      var sound = new Audio(drum);
+      sound.currentTime = start;
+      sound.volume = volume;
+      sound.play();
+    }
+  }
+</script>
+
+</body>
+
+</html>
