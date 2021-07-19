@@ -1,14 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 
 <head>
 
-<title>Drum Machine</title>
+<title>Drum Machine v2</title>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    padding: 0 18px;
+    font-family: sans-serif;
+  }
 </style>
 
 </head>
@@ -16,7 +23,7 @@
 <body>
 
 <header>
-  <h1>Drum Machine</h1>
+  <h1>Drum Machine v2</h1>
 </header>
 
 <main>
@@ -33,34 +40,67 @@
 </main>
 
 <script>
-  var bass = "https://freesound.org/data/previews/371/371192_6399962-lq.mp3",
-      snare = "https://freesound.org/data/previews/410/410514_5121236-lq.mp3",
-      crash = "https://freesound.org/data/previews/270/270108_1125482-lq.mp3",
-      hiHatOpen = "https://freesound.org/data/previews/87/87726_932703-lq.mp3",
-      hiHatClosed = "https://freesound.org/data/previews/87/87725_932703-lq.mp3",
-      china = "https://freesound.org/data/previews/28/28048_208079-lq.mp3",
-      triangle = "https://freesound.org/data/previews/349/349502_5450487-lq.mp3",
-      bell = "https://freesound.org/data/previews/34/34796_209299-lq.mp3";
-  document.addEventListener("keydown",function(event){
-    playDrum(bass,"v",0.105,1);
-    playDrum(bass,"b",0.105,1);
-    playDrum(snare,"n",0.201,1);
-    playDrum(snare,"m",0.201,1);
-    playDrum(crash,"j",0.2,0.1);
-    playDrum(hiHatOpen,"k",0,1);
-    playDrum(hiHatClosed,"l",0,1);
-    playDrum(china,"i",0,0.15);
-    playDrum(triangle,"o",0,0.4);
-    playDrum(bell,"u",0,0.4);
-  });
-  function playDrum(drum,key,start,volume){
-    if (event.key == key){
-      var sound = new Audio(drum);
-      sound.currentTime = start;
-      sound.volume = volume;
-      sound.play();
+  var instruments = {
+    bass: {
+      keys: ["v","b"],
+      start: 0.105,
+      url: "https://freesound.org/data/previews/371/371192_6399962-lq.mp3"
+    },
+    snare: {
+      keys: ["n","m"],
+      start: 0.201,
+      volume: 0.85,
+      url: "https://freesound.org/data/previews/410/410514_5121236-lq.mp3"
+    },
+    crash: {
+      keys: ["j"],
+      start: 0.2,
+      volume: 0.3,
+      url: "https://freesound.org/data/previews/270/270108_1125482-lq.mp3"
+    },
+    hi_hat_open: {
+      keys: ["k"],
+      url: "https://freesound.org/data/previews/87/87726_932703-lq.mp3"
+    },
+    hi_hat_closed: {
+      keys: ["l"],
+      url: "https://freesound.org/data/previews/87/87725_932703-lq.mp3"
+    },
+    china: {
+      keys: ["i"],
+      volume: 0.3,
+      url: "https://freesound.org/data/previews/28/28048_208079-lq.mp3"
+    },
+    triangle: {
+      keys: ["o"],
+      volume: 0.4,
+      url: "https://freesound.org/data/previews/349/349502_5450487-lq.mp3"
+    },
+    bell: {
+      keys: ["u"],
+      volume: 0.4,
+      url: "https://freesound.org/data/previews/34/34796_209299-lq.mp3"
     }
-  }
+  };
+  Object.keys(instruments).forEach(instrument => {
+    var audio = new Audio(instruments[instrument].url);
+    audio.currentTime = ("start" in instruments[instrument]) ? instruments[instrument].start : 0;
+    audio.volume = ("volume" in instruments[instrument]) ? instruments[instrument].volume : 1;
+    instruments[instrument].audio = audio;
+    document.addEventListener("keydown",event => {
+      if (!instruments[instrument].keys.includes(event.key)) return;
+      if (instrument == "hi_hat_open"){
+        instruments.hi_hat_closed.audio.pause();
+        instruments.hi_hat_closed.audio.currentTime = ("start" in instruments.hi_hat_closed) ? instruments.hi_hat_closed.start : 0;
+      }
+      if (instrument == "hi_hat_closed"){
+        instruments.hi_hat_open.audio.pause();
+        instruments.hi_hat_open.audio.currentTime = ("start" in instruments.hi_hat_open) ? instruments.hi_hat_open.start : 0;
+      }
+      audio.currentTime = ("start" in instruments[instrument]) ? instruments[instrument].start : 0;
+      audio.play();
+    });
+  });
 </script>
 
 </body>
