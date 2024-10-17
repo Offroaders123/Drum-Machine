@@ -1,3 +1,12 @@
+import bass from "./inst/bass.mp3";
+import snare from "./inst/snare.mp3";
+import crash from "./inst/crash.mp3";
+import hiHatOpen from "./inst/hiHatOpen.mp3";
+import hiHatClosed from "./inst/hiHatClosed.mp3";
+import china from "./inst/china.mp3";
+import triangle from "./inst/triangle.mp3";
+import bell from "./inst/bell.mp3";
+
 /**
  * @typedef {{ keys: string[]; start?: number; volume?: number; url: string; audio?: HTMLAudioElement; }} Instrument
  */
@@ -7,42 +16,42 @@ var instruments = {
   bass: {
     keys: ["v","b"],
     start: 0.105,
-    url: "./src/inst/bass.mp3"
+    url: bass
   },
   snare: {
     keys: ["n","m"],
     start: 0.201,
     volume: 0.85,
-    url: "./src/inst/snare.mp3"
+    url: snare
   },
   crash: {
     keys: ["j"],
     start: 0.2,
     volume: 0.3,
-    url: "./src/inst/crash.mp3"
+    url: crash
   },
   hi_hat_open: {
     keys: ["k"],
-    url: "./src/inst/hiHatOpen.mp3"
+    url: hiHatOpen
   },
   hi_hat_closed: {
     keys: ["l"],
-    url: "./src/inst/hiHatClosed.mp3"
+    url: hiHatClosed
   },
   china: {
     keys: ["i"],
     volume: 0.3,
-    url: "./src/inst/china.mp3"
+    url: china
   },
   triangle: {
     keys: ["o"],
     volume: 0.4,
-    url: "./src/inst/triangle.mp3"
+    url: triangle
   },
   bell: {
     keys: ["u"],
     volume: 0.4,
-    url: "./src/inst/bell.mp3"
+    url: bell
   }
 };
 Object.keys(instruments).forEach(key => {
