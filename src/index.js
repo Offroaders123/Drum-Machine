@@ -1,3 +1,8 @@
+/**
+ * @typedef {{ keys: string[]; start?: number; volume?: number; url: string; audio?: HTMLAudioElement; }} Instrument
+ */
+
+/** @type {Record<string, Instrument>} */
 var instruments = {
   bass: {
     keys: ["v","b"],
@@ -40,22 +45,28 @@ var instruments = {
     url: "./src/inst/bell.mp3"
   }
 };
-Object.keys(instruments).forEach(instrument => {
-  var audio = new Audio(instruments[instrument].url);
-  audio.currentTime = ("start" in instruments[instrument]) ? instruments[instrument].start : 0;
-  audio.volume = ("volume" in instruments[instrument]) ? instruments[instrument].volume : 1;
-  instruments[instrument].audio = audio;
+Object.keys(instruments).forEach(key => {
+  /** @type {Instrument} */
+  var instrument = /** @type {Instrument} */ (instruments[key]);
+  var audio = new Audio(instrument.url);
+  audio.currentTime = (instrument.start !== undefined) ? instrument.start : 0;
+  audio.volume = (instrument.volume !== undefined) ? instrument.volume : 1;
+  instrument.audio = audio;
   document.addEventListener("keydown",event => {
-    if (!instruments[instrument].keys.includes(event.key)) return;
-    if (instrument == "hi_hat_open"){
-      instruments.hi_hat_closed.audio.pause();
-      instruments.hi_hat_closed.audio.currentTime = ("start" in instruments.hi_hat_closed) ? instruments.hi_hat_closed.start : 0;
+    if (!instrument.keys.includes(event.key)) return;
+    if (key == "hi_hat_open"){
+      /** @type {Instrument} */
+      var hi_hat_closed = /** @type {Instrument} */ (instruments["hi_hat_closed"]);
+      /** @type {HTMLAudioElement} */ (hi_hat_closed.audio).pause();
+      /** @type {HTMLAudioElement} */ (hi_hat_closed.audio).currentTime = (hi_hat_closed.start !== undefined) ? hi_hat_closed.start : 0;
     }
-    if (instrument == "hi_hat_closed"){
-      instruments.hi_hat_open.audio.pause();
-      instruments.hi_hat_open.audio.currentTime = ("start" in instruments.hi_hat_open) ? instruments.hi_hat_open.start : 0;
+    if (key == "hi_hat_closed"){
+      /** @type {Instrument} */
+      var hi_hat_open = /** @type {Instrument} */ (instruments["hi_hat_open"]);
+      /** @type {HTMLAudioElement} */ (hi_hat_open.audio).pause();
+      /** @type {HTMLAudioElement} */ (hi_hat_open.audio).currentTime = (hi_hat_open.start !== undefined) ? hi_hat_open.start : 0;
     }
-    audio.currentTime = ("start" in instruments[instrument]) ? instruments[instrument].start : 0;
+    audio.currentTime = (instrument.start !== undefined) ? instrument.start : 0;
     audio.play();
   });
 });
