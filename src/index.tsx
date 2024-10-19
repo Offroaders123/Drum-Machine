@@ -1,3 +1,6 @@
+/* @refresh reload */
+import { render } from "solid-js/web";
+import App from "./App.js";
 import { Instrument } from "./Instrument.js";
 import bass from "./inst/bass.mp3";
 import snare from "./inst/snare.mp3";
@@ -7,6 +10,11 @@ import hiHatClosed from "./inst/hiHatClosed.mp3";
 import china from "./inst/china.mp3";
 import triangle from "./inst/triangle.mp3";
 import bell from "./inst/bell.mp3";
+import "./index.css";
+
+const root: HTMLDivElement = document.querySelector("#root")!;
+
+render(() => <App/>, root);
 
 const context = new AudioContext({ latencyHint: "interactive" });
 
