@@ -94,24 +94,24 @@ const instruments = {
   })
 } as const satisfies Record<string, Instrument>;
 
+type Instruments = typeof instruments;
+
 const keysMap: Set<string> = generateKeysMap(instruments);
-console.log(keysMap);
 
-for (const key of Object.keys(instruments) as (keyof typeof instruments)[]) {
-  const instrument = instruments[key] satisfies Instrument;
-  registerHandler(instrument);
-}
+registerHandler(instruments, keysMap);
 
-function generateKeysMap<T extends Record<string, Instrument>>(instruments: T): Set<string> {
+function generateKeysMap(instruments: Instruments): Set<string> {
   const keys: string[] = Object.values(instruments)
     .map(instrument => instrument.keys)
     .flat(1);
   return new Set<string>(keys);
 }
 
-function registerHandler<K extends keyof typeof instruments>(instrument: Instrument<K>): void {
+function registerHandler(instruments: Instruments, keysMap: Set<string>): void {
   document.addEventListener("keydown", event => {
-    if (!instrument.keys.includes(event.key)) return;
+    if (!keysMap.has(event.key)) return;
+    const instrument: Instrument = Object.values(instruments)
+      .find(instrument => instrument.keys.includes(event.key))!;
     if (instrument.id == "hiHatOpen") {
       const hiHatClosed = instruments.hiHatClosed satisfies Instrument;
       hiHatClosed.pause();
