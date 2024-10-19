@@ -15,7 +15,7 @@ interface Instrument {
   audio?: HTMLAudioElement;
 }
 
-var instruments: Record<string, Instrument> = {
+const instruments: Record<string, Instrument> = {
   bass: {
     keys: ["v", "b"],
     start: 0.105,
@@ -58,25 +58,25 @@ var instruments: Record<string, Instrument> = {
   }
 };
 
-Object.keys(instruments).forEach(key => {
-  var instrument: Instrument = instruments[key]!;
-  var audio = new Audio(instrument.url);
+for (const key of Object.keys(instruments)) {
+  const instrument: Instrument = instruments[key]!;
+  const audio = new Audio(instrument.url);
   audio.currentTime = (instrument.start !== undefined) ? instrument.start : 0;
   audio.volume = (instrument.volume !== undefined) ? instrument.volume : 1;
   instrument.audio = audio;
   document.addEventListener("keydown", event => {
     if (!instrument.keys.includes(event.key)) return;
     if (key == "hi_hat_open") {
-      var hi_hat_closed: Instrument = instruments["hi_hat_closed"]!;
+      const hi_hat_closed: Instrument = instruments["hi_hat_closed"]!;
       hi_hat_closed.audio!.pause();
       hi_hat_closed.audio!.currentTime = (hi_hat_closed.start !== undefined) ? hi_hat_closed.start : 0;
     }
     if (key == "hi_hat_closed") {
-      var hi_hat_open: Instrument = instruments["hi_hat_open"]!;
+      const hi_hat_open: Instrument = instruments["hi_hat_open"]!;
       hi_hat_open.audio!.pause();
       hi_hat_open.audio!.currentTime = (hi_hat_open.start !== undefined) ? hi_hat_open.start : 0;
     }
     audio.currentTime = (instrument.start !== undefined) ? instrument.start : 0;
     audio.play();
   });
-});
+}
