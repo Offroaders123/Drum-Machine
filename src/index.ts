@@ -14,14 +14,16 @@ interface InstrumentOptions {
   url: string;
 }
 
-class Instrument {
+class Instrument<K extends string = string> {
+  readonly id: K;
   readonly keys: string[];
   readonly start: number;
   readonly volume: number;
   readonly url: string;
   private readonly audio: HTMLAudioElement;
 
-  constructor({ keys, start = 0, volume = 1, url }: InstrumentOptions) {
+  constructor(id: K, { keys, start = 0, volume = 1, url }: InstrumentOptions) {
+    this.id = id;
     this.keys = keys;
     this.start = start;
     this.volume = volume;
@@ -50,42 +52,42 @@ class Instrument {
 }
 
 const instruments: Record<string, Instrument> = {
-  bass: new Instrument({
+  bass: new Instrument("bass", {
     keys: ["v", "b"],
     start: 0.105,
     url: bass
   }),
-  snare: new Instrument({
+  snare: new Instrument("snare", {
     keys: ["n", "m"],
     start: 0.201,
     volume: 0.85,
     url: snare
   }),
-  crash: new Instrument({
+  crash: new Instrument("crash", {
     keys: ["j"],
     start: 0.2,
     volume: 0.3,
     url: crash
   }),
-  hiHatOpen: new Instrument({
+  hiHatOpen: new Instrument("hiHatOpen", {
     keys: ["k"],
     url: hiHatOpen
   }),
-  hiHatClosed: new Instrument({
+  hiHatClosed: new Instrument("hiHatClosed", {
     keys: ["l"],
     url: hiHatClosed
   }),
-  china: new Instrument({
+  china: new Instrument("china", {
     keys: ["i"],
     volume: 0.3,
     url: china
   }),
-  triangle: new Instrument({
+  triangle: new Instrument("triangle", {
     keys: ["o"],
     volume: 0.4,
     url: triangle
   }),
-  bell: new Instrument({
+  bell: new Instrument("bell", {
     keys: ["u"],
     volume: 0.4,
     url: bell
