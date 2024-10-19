@@ -67,11 +67,11 @@ const instruments: Record<string, Instrument> = {
     volume: 0.3,
     url: crash
   }),
-  hi_hat_open: new Instrument({
+  hiHatOpen: new Instrument({
     keys: ["k"],
     url: hiHatOpen
   }),
-  hi_hat_closed: new Instrument({
+  hiHatClosed: new Instrument({
     keys: ["l"],
     url: hiHatClosed
   }),
@@ -96,15 +96,15 @@ for (const key of Object.keys(instruments)) {
   const instrument: Instrument = instruments[key]!;
   document.addEventListener("keydown", event => {
     if (!instrument.keys.includes(event.key)) return;
-    if (key == "hi_hat_open") {
-      const hi_hat_closed: Instrument = instruments["hi_hat_closed"]!;
-      hi_hat_closed!.pause();
-      hi_hat_closed!.currentTime = hi_hat_closed.start;
+    if (key == "hiHatOpen") {
+      const hiHatClosed: Instrument = instruments["hiHatClosed"]!;
+      hiHatClosed!.pause();
+      hiHatClosed!.currentTime = hiHatClosed.start;
     }
-    if (key == "hi_hat_closed") {
-      const hi_hat_open: Instrument = instruments["hi_hat_open"]!;
-      hi_hat_open!.pause();
-      hi_hat_open!.currentTime = hi_hat_open.start;
+    if (key == "hiHatClosed") {
+      const hiHatOpen: Instrument = instruments["hiHatOpen"]!;
+      hiHatOpen!.pause();
+      hiHatOpen!.currentTime = hiHatOpen.start;
     }
     instrument.currentTime = instrument.start;
     instrument.play();
