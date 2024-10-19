@@ -20,7 +20,8 @@ class Instrument<K extends string = string> {
   readonly start: number;
   readonly volume: number;
   readonly url: string;
-  private readonly audio: HTMLAudioElement;
+  private audioContext: AudioContext;
+  private buffer?: AudioBuffer;
 
   constructor(id: K, { keys, start = 0, volume = 1, url }: InstrumentOptions) {
     this.id = id;
@@ -28,26 +29,36 @@ class Instrument<K extends string = string> {
     this.start = start;
     this.volume = volume;
     this.url = url;
-    this.audio = new Audio(this.url);
+    this.audioContext = new AudioContext();
 
-    this.audio.currentTime = this.start;
-    this.audio.volume = this.volume;
+    this.loadAudio();
   }
 
-  get currentTime(): number {
-    return this.audio.currentTime;
+  // Load the audio buffer for the instrument
+  private async loadAudio(): Promise<void> {
+    const response = await fetch(this.url);
+    const arrayBuffer = await response.arrayBuffer();
+    this.buffer = await this.audioContext.decodeAudioData(arrayBuffer);
   }
 
-  set currentTime(value: number) {
-    this.audio.currentTime = value;
-  }
+  // Play the sound
+  play(): void {
+    if (!this.buffer) return; // If buffer not ready yet, do nothing
 
-  async play(): Promise<void> {
-    await this.audio.play();
+    const source = this.audioContext.createBufferSource();
+    source.buffer = this.buffer;
+
+    const gainNode = this.audioContext.createGain();
+    gainNode.gain.value = this.volume;
+
+    source.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+
+    source.start(this.audioContext.currentTime, this.start);
   }
 
   pause(): void {
-    this.audio.pause();
+    this.audioContext.suspend(); // Pause the entire audio context if needed
   }
 }
 
@@ -115,14 +126,11 @@ function registerHandler(instruments: Instruments, keysMap: Record<string, Instr
     if (instrument.id == "hiHatOpen") {
       const hiHatClosed = instruments.hiHatClosed satisfies Instrument;
       hiHatClosed.pause();
-      hiHatClosed.currentTime = hiHatClosed.start;
     }
     if (instrument.id == "hiHatClosed") {
       const hiHatOpen = instruments.hiHatOpen satisfies Instrument;
       hiHatOpen.pause();
-      hiHatOpen.currentTime = hiHatOpen.start;
     }
-    instrument.currentTime = instrument.start;
-    instrument.play();
+    instrument.play(); // This creates a new playback, enabling overlapping sounds
   });
 }
