@@ -51,7 +51,7 @@ class Instrument<K extends string = string> {
   }
 }
 
-const instruments: Record<string, Instrument> = {
+const instruments = {
   bass: new Instrument("bass", {
     keys: ["v", "b"],
     start: 0.105,
@@ -92,21 +92,21 @@ const instruments: Record<string, Instrument> = {
     volume: 0.4,
     url: bell
   })
-};
+} as const satisfies Record<string, Instrument>;
 
-for (const key of Object.keys(instruments)) {
-  const instrument: Instrument = instruments[key]!;
+for (const key of Object.keys(instruments) as (keyof typeof instruments)[]) {
+  const instrument = instruments[key] satisfies Instrument;
   document.addEventListener("keydown", event => {
     if (!instrument.keys.includes(event.key)) return;
-    if (key == "hiHatOpen") {
-      const hiHatClosed: Instrument = instruments["hiHatClosed"]!;
-      hiHatClosed!.pause();
-      hiHatClosed!.currentTime = hiHatClosed.start;
+    if (instrument.id == "hiHatOpen") {
+      const hiHatClosed = instruments.hiHatClosed satisfies Instrument;
+      hiHatClosed.pause();
+      hiHatClosed.currentTime = hiHatClosed.start;
     }
-    if (key == "hiHatClosed") {
-      const hiHatOpen: Instrument = instruments["hiHatOpen"]!;
-      hiHatOpen!.pause();
-      hiHatOpen!.currentTime = hiHatOpen.start;
+    if (instrument.id == "hiHatClosed") {
+      const hiHatOpen = instruments.hiHatOpen satisfies Instrument;
+      hiHatOpen.pause();
+      hiHatOpen.currentTime = hiHatOpen.start;
     }
     instrument.currentTime = instrument.start;
     instrument.play();
