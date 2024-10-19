@@ -42,10 +42,6 @@ class Instrument<K extends string = string> {
   }
 
   play(): void {
-    // if (context.state === "suspended") {
-    //   await context.resume();
-    // }
-
     this.source = context.createBufferSource();
     this.source.buffer = this.buffer;
 
@@ -123,16 +119,12 @@ function generateKeysMap(instruments: Instruments): Record<string, Instrument> {
 }
 
 function registerHandler(instruments: Instruments, keysMap: Record<string, Instrument>): void {
-  document.addEventListener("keydown", async event => {
+  document.addEventListener("keydown", event => {
     if (!(event.key in keysMap)) return;
     const instrument: Instrument = keysMap[event.key]!;
-    if (instrument.id == "hiHatOpen") {
-      const hiHatClosed = instruments.hiHatClosed satisfies Instrument;
-      hiHatClosed.pause();
-    }
-    if (instrument.id == "hiHatClosed") {
-      const hiHatOpen = instruments.hiHatOpen satisfies Instrument;
-      hiHatOpen.pause();
+    switch (instrument.id) {
+      case "hiHatOpen": instruments.hiHatClosed.pause(); break;
+      case "hiHatClosed": instruments.hiHatOpen.pause(); break;
     }
     instrument.play();
   });
