@@ -96,6 +96,10 @@ const instruments = {
 
 for (const key of Object.keys(instruments) as (keyof typeof instruments)[]) {
   const instrument = instruments[key] satisfies Instrument;
+  registerHandler(instrument);
+}
+
+function registerHandler<K extends keyof typeof instruments>(instrument: Instrument<K>): void {
   document.addEventListener("keydown", event => {
     if (!instrument.keys.includes(event.key)) return;
     if (instrument.id == "hiHatOpen") {
