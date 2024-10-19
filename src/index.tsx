@@ -22,34 +22,36 @@ class Instrument<K extends string = string> {
   readonly start: number;
   readonly volume: number;
   readonly url: string;
+  private readonly context: AudioContext;
   private buffer: AudioBuffer | null = null;
   private source: AudioBufferSourceNode | null = null;
   private gainNode: GainNode | null = null;
 
-  constructor(id: K, { keys, start = 0, volume = 1, url }: InstrumentOptions) {
+  constructor(id: K, context: AudioContext, { keys, start = 0, volume = 1, url }: InstrumentOptions) {
     this.id = id;
     this.keys = keys;
     this.start = start;
     this.volume = volume;
     this.url = url;
+    this.context = context;
     this.load();
   }
 
   private async load(): Promise<void> {
     const response: Response = await fetch(this.url);
     const arrayBuffer: ArrayBuffer = await response.arrayBuffer();
-    this.buffer = await context.decodeAudioData(arrayBuffer);
+    this.buffer = await this.context.decodeAudioData(arrayBuffer);
   }
 
   play(): void {
-    this.source = context.createBufferSource();
+    this.source = this.context.createBufferSource();
     this.source.buffer = this.buffer;
 
-    this.gainNode = context.createGain();
+    this.gainNode = this.context.createGain();
     this.gainNode.gain.value = this.volume;
 
     this.source.connect(this.gainNode);
-    this.gainNode.connect(context.destination);
+    this.gainNode.connect(this.context.destination);
 
     this.source.start(0, this.start);
   }
@@ -60,44 +62,44 @@ class Instrument<K extends string = string> {
 }
 
 const instruments = {
-  bass: new Instrument("bass", {
+  bass: new Instrument("bass", context, {
     keys: ["v", "b"],
     start: 0.105,
     url: bass
   }),
-  snare: new Instrument("snare", {
+  snare: new Instrument("snare", context, {
     keys: ["n", "m"],
     start: 0.149,
     volume: 0.85,
     url: snare
   }),
-  crash: new Instrument("crash", {
+  crash: new Instrument("crash", context, {
     keys: ["j"],
     start: 0.2,
     volume: 0.27,
     url: crash
   }),
-  hiHatOpen: new Instrument("hiHatOpen", {
+  hiHatOpen: new Instrument("hiHatOpen", context, {
     keys: ["k"],
     volume: 1.6,
     url: hiHatOpen
   }),
-  hiHatClosed: new Instrument("hiHatClosed", {
+  hiHatClosed: new Instrument("hiHatClosed", context, {
     keys: ["l"],
     volume: 1.9,
     url: hiHatClosed
   }),
-  china: new Instrument("china", {
+  china: new Instrument("china", context, {
     keys: ["i"],
     volume: 0.3,
     url: china
   }),
-  triangle: new Instrument("triangle", {
+  triangle: new Instrument("triangle", context, {
     keys: ["o"],
     volume: 0.4,
     url: triangle
   }),
-  bell: new Instrument("bell", {
+  bell: new Instrument("bell", context, {
     keys: ["u"],
     volume: 0.4,
     url: bell
