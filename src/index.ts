@@ -96,22 +96,22 @@ const instruments = {
 
 type Instruments = typeof instruments;
 
-const keysMap: Set<string> = generateKeysMap(instruments);
+const keysMap: Record<string, Instrument> = generateKeysMap(instruments);
 
 registerHandler(instruments, keysMap);
 
-function generateKeysMap(instruments: Instruments): Set<string> {
-  const keys: string[] = Object.values(instruments)
-    .map(instrument => instrument.keys)
+function generateKeysMap(instruments: Instruments): Record<string, Instrument> {
+  const entries: [string, Instrument][] = Object.values(instruments)
+    .map(instrument => instrument.keys
+      .map((key): [string, Instrument] => [key, instrument]))
     .flat(1);
-  return new Set<string>(keys);
+  return Object.fromEntries(entries);
 }
 
-function registerHandler(instruments: Instruments, keysMap: Set<string>): void {
+function registerHandler(instruments: Instruments, keysMap: Record<string, Instrument>): void {
   document.addEventListener("keydown", event => {
-    if (!keysMap.has(event.key)) return;
-    const instrument: Instrument = Object.values(instruments)
-      .find(instrument => instrument.keys.includes(event.key))!;
+    if (!(event.key in keysMap)) return;
+    const instrument: Instrument = keysMap[event.key]!;
     if (instrument.id == "hiHatOpen") {
       const hiHatClosed = instruments.hiHatClosed satisfies Instrument;
       hiHatClosed.pause();
