@@ -7,76 +7,106 @@ import china from "./inst/china.mp3";
 import triangle from "./inst/triangle.mp3";
 import bell from "./inst/bell.mp3";
 
-interface Instrument {
+interface InstrumentOptions {
   keys: string[];
   start?: number;
   volume?: number;
   url: string;
-  audio?: HTMLAudioElement;
+}
+
+class Instrument {
+  readonly keys: string[];
+  readonly start: number;
+  readonly volume: number;
+  readonly url: string;
+  private readonly audio: HTMLAudioElement;
+
+  constructor({ keys, start = 0, volume = 1, url }: InstrumentOptions) {
+    this.keys = keys;
+    this.start = start;
+    this.volume = volume;
+    this.url = url;
+    this.audio = new Audio(this.url);
+
+    this.audio.currentTime = this.start;
+    this.audio.volume = this.volume;
+  }
+
+  get currentTime(): number {
+    return this.audio.currentTime;
+  }
+
+  set currentTime(value: number) {
+    this.audio.currentTime = value;
+  }
+
+  async play(): Promise<void> {
+    await this.audio.play();
+  }
+
+  pause(): void {
+    this.audio.pause();
+  }
 }
 
 const instruments: Record<string, Instrument> = {
-  bass: {
+  bass: new Instrument({
     keys: ["v", "b"],
     start: 0.105,
     url: bass
-  },
-  snare: {
+  }),
+  snare: new Instrument({
     keys: ["n", "m"],
     start: 0.201,
     volume: 0.85,
     url: snare
-  },
-  crash: {
+  }),
+  crash: new Instrument({
     keys: ["j"],
     start: 0.2,
     volume: 0.3,
     url: crash
-  },
-  hi_hat_open: {
+  }),
+  hi_hat_open: new Instrument({
     keys: ["k"],
     url: hiHatOpen
-  },
-  hi_hat_closed: {
+  }),
+  hi_hat_closed: new Instrument({
     keys: ["l"],
     url: hiHatClosed
-  },
-  china: {
+  }),
+  china: new Instrument({
     keys: ["i"],
     volume: 0.3,
     url: china
-  },
-  triangle: {
+  }),
+  triangle: new Instrument({
     keys: ["o"],
     volume: 0.4,
     url: triangle
-  },
-  bell: {
+  }),
+  bell: new Instrument({
     keys: ["u"],
     volume: 0.4,
     url: bell
-  }
+  })
 };
 
 for (const key of Object.keys(instruments)) {
   const instrument: Instrument = instruments[key]!;
-  const audio = new Audio(instrument.url);
-  audio.currentTime = (instrument.start !== undefined) ? instrument.start : 0;
-  audio.volume = (instrument.volume !== undefined) ? instrument.volume : 1;
-  instrument.audio = audio;
   document.addEventListener("keydown", event => {
     if (!instrument.keys.includes(event.key)) return;
     if (key == "hi_hat_open") {
       const hi_hat_closed: Instrument = instruments["hi_hat_closed"]!;
-      hi_hat_closed.audio!.pause();
-      hi_hat_closed.audio!.currentTime = (hi_hat_closed.start !== undefined) ? hi_hat_closed.start : 0;
+      hi_hat_closed!.pause();
+      hi_hat_closed!.currentTime = hi_hat_closed.start;
     }
     if (key == "hi_hat_closed") {
       const hi_hat_open: Instrument = instruments["hi_hat_open"]!;
-      hi_hat_open.audio!.pause();
-      hi_hat_open.audio!.currentTime = (hi_hat_open.start !== undefined) ? hi_hat_open.start : 0;
+      hi_hat_open!.pause();
+      hi_hat_open!.currentTime = hi_hat_open.start;
     }
-    audio.currentTime = (instrument.start !== undefined) ? instrument.start : 0;
-    audio.play();
+    instrument.currentTime = instrument.start;
+    instrument.play();
   });
 }
