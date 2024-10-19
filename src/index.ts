@@ -51,7 +51,7 @@ class Instrument<K extends string = string> {
     this.source.connect(this.gainNode);
     this.gainNode.connect(context.destination);
 
-    this.source.start(context.currentTime, this.start);
+    this.source.start(0, this.start);
   }
 
   pause(): void {
