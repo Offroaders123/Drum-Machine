@@ -52,6 +52,12 @@ class Instrument<K extends string = string> {
     this.gainNode.connect(context.destination);
 
     this.source.start(context.currentTime, this.start);
+
+    // Cleanup: disconnect and stop the source when finished
+    this.source.onended = () => {
+      this.source!.disconnect();
+      this.gainNode!.disconnect();
+    };
   }
 
   pause(): void {
