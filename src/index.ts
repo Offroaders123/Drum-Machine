@@ -20,7 +20,8 @@ class Instrument<K extends string = string> {
   readonly start: number;
   readonly volume: number;
   readonly url: string;
-  private readonly audio: HTMLAudioElement;
+  private context: AudioContext | null = null;
+  private buffer: AudioBuffer | null = null;
 
   constructor(id: K, { keys, start = 0, volume = 1, url }: InstrumentOptions) {
     this.id = id;
@@ -28,26 +29,35 @@ class Instrument<K extends string = string> {
     this.start = start;
     this.volume = volume;
     this.url = url;
-    this.audio = new Audio(this.url);
-
-    this.audio.currentTime = this.start;
-    this.audio.volume = this.volume;
+    this.load();
   }
 
-  get currentTime(): number {
-    return this.audio.currentTime;
-  }
-
-  set currentTime(value: number) {
-    this.audio.currentTime = value;
+  private async load(): Promise<void> {
+    this.context = new AudioContext({ latencyHint: "interactive" });
+    const response: Response = await fetch(this.url);
+    const arrayBuffer: ArrayBuffer = await response.arrayBuffer();
+    this.buffer = await this.context.decodeAudioData(arrayBuffer);
   }
 
   async play(): Promise<void> {
-    await this.audio.play();
+    if (this.context!.state === "suspended") {
+      await this.context!.resume();
+    }
+
+    const source: AudioBufferSourceNode = this.context!.createBufferSource();
+    source.buffer = this.buffer;
+
+    const gainNode: GainNode = this.context!.createGain();
+    gainNode.gain.value = this.volume;
+
+    source.connect(gainNode);
+    gainNode.connect(this.context!.destination);
+
+    source.start(this.context!.currentTime, this.start);
   }
 
-  pause(): void {
-    this.audio.pause();
+  async pause(): Promise<void> {
+    await this.context!.suspend();
   }
 }
 
@@ -59,22 +69,24 @@ const instruments = {
   }),
   snare: new Instrument("snare", {
     keys: ["n", "m"],
-    start: 0.201,
+    start: 0.149,
     volume: 0.85,
     url: snare
   }),
   crash: new Instrument("crash", {
     keys: ["j"],
     start: 0.2,
-    volume: 0.3,
+    volume: 0.27,
     url: crash
   }),
   hiHatOpen: new Instrument("hiHatOpen", {
     keys: ["k"],
+    volume: 1.6,
     url: hiHatOpen
   }),
   hiHatClosed: new Instrument("hiHatClosed", {
     keys: ["l"],
+    volume: 1.9,
     url: hiHatClosed
   }),
   china: new Instrument("china", {
@@ -109,20 +121,17 @@ function generateKeysMap(instruments: Instruments): Record<string, Instrument> {
 }
 
 function registerHandler(instruments: Instruments, keysMap: Record<string, Instrument>): void {
-  document.addEventListener("keydown", event => {
+  document.addEventListener("keydown", async event => {
     if (!(event.key in keysMap)) return;
     const instrument: Instrument = keysMap[event.key]!;
     if (instrument.id == "hiHatOpen") {
       const hiHatClosed = instruments.hiHatClosed satisfies Instrument;
-      hiHatClosed.pause();
-      hiHatClosed.currentTime = hiHatClosed.start;
+      await hiHatClosed.pause();
     }
     if (instrument.id == "hiHatClosed") {
       const hiHatOpen = instruments.hiHatOpen satisfies Instrument;
-      hiHatOpen.pause();
-      hiHatOpen.currentTime = hiHatOpen.start;
+      await hiHatOpen.pause();
     }
-    instrument.currentTime = instrument.start;
-    instrument.play();
+    await instrument.play();
   });
 }
