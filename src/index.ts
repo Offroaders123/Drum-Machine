@@ -7,6 +7,8 @@ import china from "./inst/china.mp3";
 import triangle from "./inst/triangle.mp3";
 import bell from "./inst/bell.mp3";
 
+const context = new AudioContext({ latencyHint: "interactive" });
+
 interface InstrumentOptions {
   keys: string[];
   start?: number;
@@ -20,8 +22,9 @@ class Instrument<K extends string = string> {
   readonly start: number;
   readonly volume: number;
   readonly url: string;
-  private context: AudioContext | null = null;
   private buffer: AudioBuffer | null = null;
+  private source: AudioBufferSourceNode | null = null;
+  private gainNode: GainNode | null = null;
 
   constructor(id: K, { keys, start = 0, volume = 1, url }: InstrumentOptions) {
     this.id = id;
@@ -33,31 +36,30 @@ class Instrument<K extends string = string> {
   }
 
   private async load(): Promise<void> {
-    this.context = new AudioContext({ latencyHint: "interactive" });
     const response: Response = await fetch(this.url);
     const arrayBuffer: ArrayBuffer = await response.arrayBuffer();
-    this.buffer = await this.context.decodeAudioData(arrayBuffer);
+    this.buffer = await context.decodeAudioData(arrayBuffer);
   }
 
-  async play(): Promise<void> {
-    if (this.context!.state === "suspended") {
-      await this.context!.resume();
-    }
+  play(): void {
+    // if (context.state === "suspended") {
+    //   await context.resume();
+    // }
 
-    const source: AudioBufferSourceNode = this.context!.createBufferSource();
-    source.buffer = this.buffer;
+    this.source = context.createBufferSource();
+    this.source.buffer = this.buffer;
 
-    const gainNode: GainNode = this.context!.createGain();
-    gainNode.gain.value = this.volume;
+    this.gainNode = context.createGain();
+    this.gainNode.gain.value = this.volume;
 
-    source.connect(gainNode);
-    gainNode.connect(this.context!.destination);
+    this.source.connect(this.gainNode);
+    this.gainNode.connect(context.destination);
 
-    source.start(this.context!.currentTime, this.start);
+    this.source.start(context.currentTime, this.start);
   }
 
-  async pause(): Promise<void> {
-    await this.context!.suspend();
+  pause(): void {
+    this.source?.stop();
   }
 }
 
@@ -126,12 +128,12 @@ function registerHandler(instruments: Instruments, keysMap: Record<string, Instr
     const instrument: Instrument = keysMap[event.key]!;
     if (instrument.id == "hiHatOpen") {
       const hiHatClosed = instruments.hiHatClosed satisfies Instrument;
-      await hiHatClosed.pause();
+      hiHatClosed.pause();
     }
     if (instrument.id == "hiHatClosed") {
       const hiHatOpen = instruments.hiHatOpen satisfies Instrument;
-      await hiHatOpen.pause();
+      hiHatOpen.pause();
     }
-    await instrument.play();
+    instrument.play();
   });
 }
