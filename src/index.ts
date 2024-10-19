@@ -42,6 +42,13 @@ class Instrument<K extends string = string> {
   }
 
   play(): void {
+    // If there's already a source playing, stop it before creating a new one.
+    if (this.source) {
+      this.source.stop();
+      this.source.disconnect(); // Disconnect the previous source
+      this.source = null;
+    }
+
     this.source = context.createBufferSource();
     this.source.buffer = this.buffer;
 
@@ -52,16 +59,14 @@ class Instrument<K extends string = string> {
     this.gainNode.connect(context.destination);
 
     this.source.start(context.currentTime, this.start);
-
-    // Cleanup: disconnect and stop the source when finished
-    this.source.onended = () => {
-      this.source!.disconnect();
-      this.gainNode!.disconnect();
-    };
   }
 
   pause(): void {
-    this.source?.stop();
+    if (this.source) {
+      this.source.stop();
+      this.source.disconnect();
+      this.source = null; // Clean up source node after stopping
+    }
   }
 }
 
