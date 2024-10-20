@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "gamepad-state": "file:gamepad-state",
     "solid-js": "^1.9.2"
   },
   "devDependencies": {
