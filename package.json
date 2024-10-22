@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "cd gamepad-state && npm i && npm run build && cd ../ && tsc && vite build",
     "dev": "vite",
     "preview": "vite preview"
   },
