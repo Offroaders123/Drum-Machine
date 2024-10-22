@@ -97,10 +97,10 @@ export default function App() {
     return Object.fromEntries(entries);
   }
 
-  function generateButtonsMap(instruments: Instruments): Record<string, Instrument> {
+  function generateButtonsMap(instruments: Instruments): Record<number, Instrument> {
     const entries: [number, Instrument][] = Object.values(instruments)
       .map(instrument => instrument.buttons
-        .map((index): [number, Instrument] => [index, instrument]))
+        .map(([button]): [number, Instrument] => [button, instrument]))
       .flat(1);
     return Object.fromEntries(entries);
   }
@@ -134,6 +134,11 @@ export default function App() {
 
       // console.log(button);
       const instrument: Instrument = buttonsMap[index]!;
+      const state: [number, boolean] = instrument.buttons.find(button => button[0] === index)!;
+      console.log(instrument, index, state);
+      if (state[1] === button.pressed) continue;
+      state[1] = button.pressed;
+      if (!state[1]) continue;
       instrument.play();
     }
   });

@@ -9,7 +9,7 @@ export interface InstrumentOptions {
 export class Instrument<K extends string = string> {
   readonly id: K;
   readonly keys: string[];
-  readonly buttons: number[];
+  readonly buttons: [number, boolean][];
   readonly start: number;
   readonly volume: number;
   readonly url: string;
@@ -21,7 +21,7 @@ export class Instrument<K extends string = string> {
   constructor(id: K, context: AudioContext, { keys, buttons, start = 0, volume = 1, url }: InstrumentOptions) {
     this.id = id;
     this.keys = keys;
-    this.buttons = buttons;
+    this.buttons = buttons.map(button => [button, false]);
     this.start = start;
     this.volume = volume;
     this.url = url;
