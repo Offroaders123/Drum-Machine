@@ -1,5 +1,5 @@
 import { createEffect, createSignal, onCleanup } from "solid-js";
-import { GamepadObserver } from "gamepad-state";
+import { GamepadObserver } from "../gamepad-state/src/index.js";
 import { Instrument } from "./Instrument.js";
 import bass from "./inst/bass.mp3";
 import snare from "./inst/snare.mp3";
