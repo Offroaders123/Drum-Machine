@@ -1,5 +1,6 @@
 export interface InstrumentOptions {
   keys: string[];
+  buttons: number[];
   start?: number;
   volume?: number;
   url: string;
@@ -8,6 +9,7 @@ export interface InstrumentOptions {
 export class Instrument<K extends string = string> {
   readonly id: K;
   readonly keys: string[];
+  readonly buttons: number[];
   readonly start: number;
   readonly volume: number;
   readonly url: string;
@@ -16,9 +18,10 @@ export class Instrument<K extends string = string> {
   private source: AudioBufferSourceNode | null = null;
   private gainNode: GainNode | null = null;
 
-  constructor(id: K, context: AudioContext, { keys, start = 0, volume = 1, url }: InstrumentOptions) {
+  constructor(id: K, context: AudioContext, { keys, buttons, start = 0, volume = 1, url }: InstrumentOptions) {
     this.id = id;
     this.keys = keys;
+    this.buttons = buttons;
     this.start = start;
     this.volume = volume;
     this.url = url;

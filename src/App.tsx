@@ -32,43 +32,51 @@ export default function App() {
   const instruments = {
     bass: new Instrument("bass", context, {
       keys: ["v", "b"],
+      buttons: [14, 13],
       start: 0.105,
       url: bass
     }),
     snare: new Instrument("snare", context, {
       keys: ["n", "m"],
+      buttons: [15, 12],
       start: 0.149,
       volume: 0.85,
       url: snare
     }),
     crash: new Instrument("crash", context, {
       keys: ["j"],
+      buttons: [3],
       start: 0.2,
       volume: 0.27,
       url: crash
     }),
     hiHatOpen: new Instrument("hiHatOpen", context, {
       keys: ["k"],
+      buttons: [1],
       volume: 1.6,
       url: hiHatOpen
     }),
     hiHatClosed: new Instrument("hiHatClosed", context, {
       keys: ["l"],
+      buttons: [0],
       volume: 1.9,
       url: hiHatClosed
     }),
     china: new Instrument("china", context, {
       keys: ["i"],
+      buttons: [],
       volume: 0.3,
       url: china
     }),
     triangle: new Instrument("triangle", context, {
       keys: ["o"],
+      buttons: [],
       volume: 0.4,
       url: triangle
     }),
     bell: new Instrument("bell", context, {
       keys: ["u"],
+      buttons: [],
       volume: 0.4,
       url: bell
     })
@@ -77,6 +85,7 @@ export default function App() {
   type Instruments = typeof instruments;
 
   const keysMap: Record<string, Instrument> = generateKeysMap(instruments);
+  const buttonsMap: Record<string, Instrument> = generateButtonsMap(instruments);
 
   registerHandler(instruments, keysMap);
 
@@ -84,6 +93,14 @@ export default function App() {
     const entries: [string, Instrument][] = Object.values(instruments)
       .map(instrument => instrument.keys
         .map((key): [string, Instrument] => [key, instrument]))
+      .flat(1);
+    return Object.fromEntries(entries);
+  }
+
+  function generateButtonsMap(instruments: Instruments): Record<string, Instrument> {
+    const entries: [number, Instrument][] = Object.values(instruments)
+      .map(instrument => instrument.buttons
+        .map((index): [number, Instrument] => [index, instrument]))
       .flat(1);
     return Object.fromEntries(entries);
   }
@@ -100,8 +117,25 @@ export default function App() {
     });
   }
 
+  // console.log(buttonsMap);
+
   createEffect(() => {
-    console.log(getGamepad());
+    // console.log(getGamepad());
+
+    const gamepad: Gamepad | null = getGamepad();
+    if (gamepad === null) return;
+
+    // console.log("update!!!");
+
+    // console.log(gamepad.buttons.map((button, i): [GamepadButton, number] => [button, i]).filter(([button]) => button.pressed).map(([_, i]) => i));
+
+    for (const [index, button] of gamepad.buttons.entries()) {
+      if (!(index in buttonsMap)) continue;
+
+      // console.log(button);
+      const instrument: Instrument = buttonsMap[index]!;
+      instrument.play();
+    }
   });
 
   onCleanup(() => {
