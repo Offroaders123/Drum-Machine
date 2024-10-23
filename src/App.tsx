@@ -16,9 +16,11 @@ export default function App() {
   const observer = new GamepadObserver(record => {
     if (!record.gamepad.mapping) return; // Also related to the Chrome bug below.
 
+    console.log(record.gamepad);
+
     switch (record.type) {
       case "connect":
-      case "input": return setGamepad(record.gamepad);
+      case "input": return setGamepad(cloneGamepad(record.gamepad));
       case "disconnect": return setGamepad(null);
     }
   });
@@ -26,6 +28,29 @@ export default function App() {
   // This is to account for a bug in Chrome macOS where my SteelSeries Nimbus shows up as two controllers.
   observer.observe(0);
   observer.observe(1);
+
+  function cloneGamepad(gamepad: Gamepad): Gamepad {
+    const {
+      axes,
+      buttons,
+      connected,
+      id,
+      index,
+      mapping,
+      timestamp,
+      vibrationActuator
+    } = gamepad;
+    return {
+      axes,
+      buttons,
+      connected,
+      id,
+      index,
+      mapping,
+      timestamp,
+      vibrationActuator
+    };
+  }
 
   const context = new AudioContext({ latencyHint: "interactive" });
 
@@ -136,8 +161,8 @@ export default function App() {
       const instrument: Instrument = buttonsMap[index]!;
       const state: [number, boolean] = instrument.buttons.find(button => button[0] === index)!;
       console.log(instrument, index, state);
-      if (state[1] === button.pressed) continue;
-      state[1] = button.pressed;
+      if (state[1] === (button.value !== 0)) continue;
+      state[1] = button.value !== 0;
       if (!state[1]) continue;
       instrument.play();
     }
@@ -163,6 +188,13 @@ export default function App() {
           <li>Press O for triangle</li>
           <li>Press U for bell</li>
         </ul>
+        {"ontouchstart" in window && <button
+          onclick={async () => {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+            // await context.resume();
+          }}>
+          Allow Playback
+        </button>}
       </main>
     </>
   );
